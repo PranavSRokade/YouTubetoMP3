@@ -11,11 +11,16 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.util.Log;
+import android.view.View;
 import android.webkit.DownloadListener;
 import android.webkit.URLUtil;
+import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.karumi.dexter.Dexter;
@@ -39,27 +44,31 @@ public class MainActivity extends AppCompatActivity {
         AdBlocker.init(this);
 
         converter = findViewById(R.id.converter);
-
         converter.getSettings().setJavaScriptEnabled(true);
-        converter.setWebViewClient(new MyBrowser());
 
-        converter.loadUrl("https://320ytmp3.com/envGMI");
+        converter.loadUrl("https://getx.topsandtees.space/downloader");
 
         Intent intent = getIntent();
         if(!intent.hasCategory("android.intent.category.LAUNCHER")){
             Intent newIntent = getIntent();
             String link = newIntent.getStringExtra(Intent.EXTRA_TEXT);
-            String url = "https://320ytmp3.com/envGMI/download?type=ytmp3&url=https%3A%2F%2Fyoutu.be%2F" + link.substring(17, 28);
 
-            converter.loadUrl(url);
+            converter.setWebViewClient(new WebViewClient(){
+                @Override
+                public void onPageFinished(WebView view, String url)
+                {
+                    converter.loadUrl("javascript:(function(){document.getElementsByClassName('form-control z12')[0].value = '" + link + "';})()");
+                }
+            });
         }
+
 
         Dexter.withContext(this).withPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE).withListener(new PermissionListener() {
             @Override
             public void onPermissionGranted(PermissionGrantedResponse permissionGrantedResponse) {
                 converter.setDownloadListener(new DownloadListener() {
                     public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
-                        String name = ((((((((((URLUtil.guessFileName(url, contentDisposition, mimetype).replace("%20", " ")).replace("%21", "!"))).replace("%22", "\"\"")).replace("%23", "#")).replace("%24", "$")).replace("%25", "%")).replace("%26", "&")).replace("%27", "'")).replace("%28", "(")).replace("%29", ")");
+                        String name = (((((((((((((URLUtil.guessFileName(url, contentDisposition, mimetype).replace("%20", " ")).replace("%21", "!"))).replace("%22", "\"\"")).replace("%23", "#")).replace("%24", "$")).replace("%25", "%")).replace("%26", "&")).replace("%27", "'")).replace("%28", "(")).replace("%29", ")")).replace("(getmp3.pro)", "")).replace("_", " ")).replace(" .", ".");
 
                         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
                         request.allowScanningByMediaScanner();
